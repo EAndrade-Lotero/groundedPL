@@ -2,7 +2,7 @@ from tqdm import tqdm
 from copy import deepcopy
 from typing import List, Tuple
 
-from groundedPL.codificacion import PPT
+from src.codificacion import PPT
 
 class TseitinTransform :
 

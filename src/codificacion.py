@@ -6,8 +6,8 @@ from typing import (
 	List, Optional, Tuple
 )
 
-from groundedPL.logClases import *
-from groundedPL.logUtils import LogUtils
+from src.logClases import *
+from src.logUtils import LogUtils
 
 class ToPropositionalLogic:
      
