@@ -1,13 +1,13 @@
 import nltk
 import numpy as np
 
-from nltk.sem.logic import LogicParser
+from nltk.sem.logic import LogicParser, Expression
 from typing import (
 	List, Optional, Tuple
 )
 
-from src.logClases import *
-from src.logUtils import LogUtils
+from groundedPL.logClases import *
+from groundedPL.logUtils import LogUtils
 
 class ToPropositionalLogic:
      
@@ -46,6 +46,9 @@ class ToPropositionalLogic:
             print(f'La fórmula fundamentada es:\n{formula_fundamentada}')
             print(f'La fórmula codificada es:\n{formula_lp}')
         return formula_lp
+
+    def to_nltk(self, sentence:str) -> Expression:
+         return self.parser.parse(sentence)
 
     def leer(self, A:str) -> str:
             '''
@@ -407,11 +410,21 @@ class Modelo:
         assert(len(literal) <= 2), f'Literal incorrecto (se recibió {literal})'
         neg, atomo = PPT.como_literal(literal)
         lista_valores = self.descriptor.decodifica(atomo)
-        predicado = self.vocabulario[lista_valores[0]]
-        argumentos = [self.vocabulario[idx] for idx in lista_valores[1:]]
+        nombre_predicado = self.vocabulario[lista_valores[0]]
+        predicado = self.nombre_a_predicado(nombre_predicado)
+        n = predicado.aridad
+        argumentos = [self.vocabulario[idx] for idx in lista_valores[1:n+1]]
         argumentos = ', '.join(argumentos)
         formula_atomica = f'{neg}{predicado}({argumentos})'
         return formula_atomica
+
+    def nombre_a_predicado(self, nombre_predicado:str) -> Predicado:
+        for predicado in self.predicados:
+             if predicado.nombre == nombre_predicado:
+                return predicado
+        else:
+            msg = f'Error: Predicado {nombre_predicado} no encontrado.'
+            raise Exception(msg)
 
     def __str__(self):
         cadena = '\n' + '='*20 + 'COMPONENTES DEL MODELO' + '='*20

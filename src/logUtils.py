@@ -2,7 +2,7 @@
 Funciones auxiliares sobre fórmulas en lógica de primer orden (lpo).
 '''
 import nltk
-from src.logClases import *
+from groundedPL.logClases import *
 
 lp = nltk.sem.logic.LogicParser()
 
