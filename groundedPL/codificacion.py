@@ -3,7 +3,7 @@ import numpy as np
 
 from nltk.sem.logic import LogicParser, Expression
 from typing import (
-	List, Optional, Tuple
+	List, Optional, Tuple, Union
 )
 
 from groundedPL.logClases import *
@@ -99,8 +99,9 @@ class ToPropositionalLogic:
     def leer_literal(self, literal:str) -> str:
         return self.modelo_lp.decodificar(literal)
 
-    def clases_no_vacias(self, sentence:str) -> str:
-        sentence_lp = self.parser.parse(sentence)
+    def clases_no_vacias(self, sentence:Union[str,Expression]) -> str:
+        if isinstance(sentence, str):
+            sentence_lp = self.parser.parse(sentence)
         afirmacion_existencial = LogUtils.predicados_a_existenciales(sentence_lp)         
         afirmacion_existencial = LogUtils.existenciales_a_constantes(afirmacion_existencial)
         if afirmacion_existencial is None:

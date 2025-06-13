@@ -13,8 +13,8 @@ class LogicTester:
         self.to_lp = ToPropositionalLogic()
         # self.to_lp.debug = True
         self.tseitin = TseitinTransform()
-        # self.tseitin.debug = True
-        self.debug = False
+        self.tseitin.debug = True
+        self.debug = True
         self.to_numeric = None
     
     def negate_sentence(self, sentence:str) -> str:
@@ -142,3 +142,15 @@ class LogicTester:
         resultado = self.check_implication(premisas, conclusion)
 
         return resultado
+    
+    def decodificar_modelo_SAT(self, resultado:List[int]) -> List[str]:
+        '''
+        Decode the SAT model.
+        '''
+        if self.to_numeric is None:
+            raise ValueError("No SAT model available to decode.")
+        modelo = [self.to_numeric.literal(x) for x in resultado]
+        modelo = [x for x in modelo if self.to_numeric.solo_atomo(x) in self.tseitin.atomos] 
+        modelo = [self.to_lp.modelo_lp.decodificar(x) for x in modelo]
+        return modelo
+    

@@ -4,7 +4,12 @@ Funciones auxiliares sobre fórmulas en lógica de primer orden (lpo).
 import nltk
 from groundedPL.logClases import *
 
-lp = nltk.sem.logic.LogicParser()
+from nltk.sem.logic import LogicParser, Expression
+from typing import (
+	List, Optional, Tuple, Union
+)
+
+lp = LogicParser()
 
 class LogUtils:
     '''
@@ -252,7 +257,7 @@ class LogUtils:
         return nombre
 
     @staticmethod
-    def Ytoria(lista_forms:list) -> nltk.sem.logic:
+    def Ytoria(lista_forms:List[Union[str,Expression]]) -> nltk.sem.logic:
         '''
         Toma una lista de formulas y las une mediante &.
         Input:
@@ -266,12 +271,16 @@ class LogUtils:
             return lista_forms[0]
         else:
             form = lista_forms[0]
+            if isinstance(form, str):   
+                form = lp.parse(form)
             for f in lista_forms[1:]:
+                if isinstance(f, str):   
+                    f = lp.parse(f)
                 form = nltk.sem.logic.AndExpression(form, f)
             return form
 
     @staticmethod
-    def Otoria(lista_forms:list) -> nltk.sem.logic:
+    def Otoria(lista_forms:List[Union[str,Expression]]) -> nltk.sem.logic:
         '''
         Toma una lista de formulas y las une mediante |.
         Input:
@@ -285,7 +294,11 @@ class LogUtils:
             return lista_forms[0]
         else:
             form = lista_forms[0]
+            if isinstance(form, str):   
+                form = lp.parse(form)
             for f in lista_forms[1:]:
+                if isinstance(f, str):   
+                    f = lp.parse(f)
                 form = nltk.sem.logic.OrExpression(form, f)
             return form
  
