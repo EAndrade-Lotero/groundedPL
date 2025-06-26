@@ -13,7 +13,7 @@ class LogicTester:
         self.to_lp = ToPropositionalLogic()
         # self.to_lp.debug = True
         self.tseitin = TseitinTransform()
-        self.tseitin.debug = True
+        self.tseitin.debug = False
         self.debug = True
         self.to_numeric = None
     

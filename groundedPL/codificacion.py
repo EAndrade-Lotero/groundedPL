@@ -36,8 +36,22 @@ class ToPropositionalLogic:
         else:
             sentence_lp = sentence
         assert(len(sentence_lp.free()) == 0), f'Fórmula con variables libres: {sentence_lp}\n\{sentence_lp.free()}'
+        if self.debug:
+             print('Creando modelo...')
         self.modelo_lp.poblar_con(sentence_lp)
+        if self.debug:
+             print('Creando formula igualdades...')
+        formula_igualdades = self.modelo_lp.formula_para_garantizar_igualdad()
+        if len(formula_igualdades) > 0:
+            sentence_lp = LogUtils.Ytoria([sentence_lp, formula_igualdades])
+        if self.debug:
+             print('Quitando iffs...')
+        sentence_lp = LogUtils.quitar_iff(sentence_lp)
+        if self.debug:
+             print('Fundamentando...')
         formula_fundamentada = self.modelo_lp.fundamentar(sentence_lp)
+        if self.debug:
+             print('Codificando...')
         formula_lp = self.modelo_lp.codificar_lp(formula_fundamentada)
         if self.debug:
             print(f'\n\nLa oración inicial es:\n{sentence}')
@@ -102,12 +116,17 @@ class ToPropositionalLogic:
     def clases_no_vacias(self, sentence:Union[str,Expression]) -> str:
         if isinstance(sentence, str):
             sentence_lp = self.parser.parse(sentence)
+        elif isinstance(sentence, Expression):
+            sentence_lp = sentence
+        else:
+            raise Exception(f"Argument of incorrect type ({type(sentence)}). Expected string or nltk logic expresison.")
         afirmacion_existencial = LogUtils.predicados_a_existenciales(sentence_lp)         
         afirmacion_existencial = LogUtils.existenciales_a_constantes(afirmacion_existencial)
         if afirmacion_existencial is None:
             formula_clases_no_vacias = sentence
         else:
             formula_clases_no_vacias = f'({sentence_lp} & {afirmacion_existencial})'
+        formula_clases_no_vacias = self.to_nltk(formula_clases_no_vacias)
         return formula_clases_no_vacias
 
 
@@ -426,6 +445,22 @@ class Modelo:
         else:
             msg = f'Error: Predicado {nombre_predicado} no encontrado.'
             raise Exception(msg)
+
+    def formula_para_garantizar_igualdad(self) -> str:
+        igualdades = []
+        for predicado in self.predicados:
+            otras_variables = [f"x{n}" for n in range(predicado.aridad - 1)]
+            if len(otras_variables) > 0:
+                cuantificador = f"all {' '.join(otras_variables)}."
+            else:
+                cuantificador = ""
+            for idx in range(predicado.aridad):
+                variables_x = otras_variables[:idx] + ['x'] + otras_variables[idx:]
+                variables_y = otras_variables[:idx] + ['y'] + otras_variables[idx:]
+                formula = cuantificador + f"{predicado.nombre}({', '.join(variables_x)}) <-> {predicado.nombre}({', '.join(variables_y)})"
+                igualdades.append(formula)
+        formula_igualdad = f"all x y.({LogUtils.Ytoria(igualdades)})"
+        return formula_igualdad
 
     def __str__(self):
         cadena = '\n' + '='*20 + 'COMPONENTES DEL MODELO' + '='*20

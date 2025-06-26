@@ -346,6 +346,47 @@ class LogUtils:
         return libres
     
     @staticmethod
+    def quitar_iff(expresion:nltk.sem.logic) -> nltk.sem.logic:
+        tipo = LogUtils.obtener_type(expresion)
+        #print(f'tipo: {tipo}')
+        if tipo in ['IffExpression']:
+            first = LogUtils.quitar_iff(expresion.first)
+            second = LogUtils.quitar_iff(expresion.second)
+            new_expresion = f'({first}->{second})&({second}->{first})'
+            return  lp.parse(new_expresion)
+        elif tipo in ['AllExpression' , 'ExistsExpression']:
+            termino = expresion.term
+            new_term = LogUtils.quitar_iff(termino)
+            cuantificador = expresion.getQuantifier()
+            variable = expresion.variable
+            new_expresion = f'{cuantificador} {variable}.{new_term}'
+            return lp.parse(new_expresion)
+        elif tipo in ['AndExpression', 'OrExpression', 'ImpExpression']:
+            first = LogUtils.quitar_iff(expresion.first)
+            second = LogUtils.quitar_iff(expresion.second)
+            conectivo = LogUtils.conectivo_principal(expresion)
+            new_expresion = f'({first}->{second}){conectivo}({second}->{first})'
+            return  lp.parse(new_expresion)
+        else:
+            return expresion
+    
+    @staticmethod
+    def conectivo_principal(expresion:nltk.sem.logic) -> str:
+        tipo = LogUtils.obtener_type(expresion)
+        if tipo == 'AndExpression':
+            return '&'
+        elif tipo == 'OrExpression':
+            return '|'
+        elif tipo == 'ImpExpression':
+            return '->'
+        elif tipo == 'IffExpression':
+            return '<->'
+        else:
+            return None
+    
+
+
+    @staticmethod
     def predicados_a_existenciales(expresion:nltk.sem.logic) -> nltk.sem.logic:
         '''
         Toma una fórmula y crea una formula con existenciales por cada predicado
