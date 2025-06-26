@@ -365,7 +365,7 @@ class LogUtils:
             first = LogUtils.quitar_iff(expresion.first)
             second = LogUtils.quitar_iff(expresion.second)
             conectivo = LogUtils.conectivo_principal(expresion)
-            new_expresion = f'({first}->{second}){conectivo}({second}->{first})'
+            new_expresion = f'({first}){conectivo}({second})'
             return  lp.parse(new_expresion)
         else:
             return expresion
